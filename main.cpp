@@ -1,6 +1,7 @@
 #include <stdio.h>
 
 #include "file_reading.h"
+#include "sort.cpp"
 
 int compare_str(const char *str1, const char *str2);
 
@@ -19,6 +20,12 @@ int main()
 
 	struct Text text = {};
 	read_text(&text, filename);
-	printf("1: %s\n2: %s\n3: %s\n", text.lines[0], text.lines[1], text.lines[2]);
+	printf("1: %s\n2: %s\n3: %s\n\n", text.lines[0], text.lines[1], text.lines[2]);
 	destroy_text(&text);
+
+	int arr[] = { 10, 4, 5, 1, 2, 7, 6, 3, 9, 8 };
+	qsort(arr, 0, 10);
+
+	for (size_t i = 0; i < 10; i++)
+		printf("%d ", arr[i]);
 }
