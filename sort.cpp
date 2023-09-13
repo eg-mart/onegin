@@ -1,5 +1,8 @@
+#include <stdio.h>
+
+#include "sort.h"
+
 size_t partition(int *arr, size_t left, size_t right);
-void qsort(int *arr, size_t left, size_t right);
 void swap(int *arr, size_t left, size_t right);
 
 size_t partition(int *arr, size_t left, size_t right)

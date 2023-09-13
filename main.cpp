@@ -1,7 +1,7 @@
 #include <stdio.h>
 
 #include "file_reading.h"
-#include "sort.cpp"
+#include "sort.h"
 
 int compare_str(const char *str1, const char *str2);
 
