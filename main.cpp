@@ -23,9 +23,11 @@ int main()
 	printf("1: %s\n2: %s\n3: %s\n\n", text.lines[0], text.lines[1], text.lines[2]);
 	destroy_text(&text);
 
-	int arr[] = { 10, 4, 5, 1, 2, 7, 6, 3, 9, 8 };
-	qsort(arr, 0, 10);
+	const int SIZE = 8;
+	int arr[] = {-10, 10, 10, 0, 7, 6, 6, 0};
+	qsort(arr, 0, SIZE);
 
-	for (size_t i = 0; i < 10; i++)
+	for (size_t i = 0; i < SIZE; i++)
 		printf("%d ", arr[i]);
+	printf("\n");
 }

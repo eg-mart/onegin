@@ -7,8 +7,12 @@ size_t partition(int *arr, size_t left, size_t right)
 	int pivot = arr[(left + --right) / 2];
 
 	while (left < right) {
-		if (arr[left] >= pivot && arr[right] <= pivot)
-			swap(arr, left, right);
+		if (arr[left] >= pivot && arr[right] <= pivot) {
+			if (arr[left] == arr[right])
+				right--;
+			else
+				swap(arr, left, right);
+		}
 		if (arr[left] < pivot)
 			left++;
 		if (arr[right] > pivot)
