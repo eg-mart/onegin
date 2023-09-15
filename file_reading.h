@@ -1,8 +1,16 @@
+#ifndef FILE_READING
+#define FILE_READING
+
 struct Text {
 	size_t buffer_size;
 	char *buffer;
 	size_t num_lines;
-	char **lines;
+	struct Line *lines;
+};
+
+struct Line {
+	size_t len;
+	char *txt;
 };
 
 enum TextError {
@@ -14,3 +22,5 @@ enum TextError {
 
 enum TextError read_text(struct Text *text, const char *filename);
 void destroy_text(struct Text *text);
+
+#endif
