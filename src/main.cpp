@@ -5,15 +5,20 @@
 #include "file_reading.h"
 #include "sort.h"
 
-int main(int argc, char *argv[])
+int main(int argc, const char *argv[])
 {
-	const char *filename = "onegin.txt";
+	if (argc < 3) {
+		fputs("Error: wrong arguments\n", stderr);
+		return 1;
+	}
+
+	const char *filename = argv[2];
 
 	struct Text text = {};
 	if (read_text(&text, filename) < 0)
 		return (fputs("Error: unable to read file\n", stderr), 1);
 
-	if (argc < 2 || strcmp(argv[1], "-f") == 0)
+	if (strcmp(argv[1], "-f") == 0)
 		my_qsort(text.lines, text.num_lines, sizeof(Line), compare_str);
 	else if (strcmp(argv[1], "-b") == 0)
 		qsort(text.lines, text.num_lines, sizeof(Line), compare_str_reverse);
