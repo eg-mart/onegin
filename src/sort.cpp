@@ -5,8 +5,6 @@
 #include "sort.h"
 #include "file_reading.h"
 
-#define abs(x) ((x) < 0 ? -(x) : (x))
-
 size_t partition(void *arr, size_t count, size_t size, 
 				 int (*comp)(const void*, const void*));
 void fast_swap(void *f, void *s, size_t size);
@@ -20,51 +18,59 @@ bool is_russian_letter(char c)
 
 int compare_str(const void *first, const void *second)
 {
-	const struct Line *first_line = (const struct Line*) first;
-	const struct Line *second_line = (const struct Line*) second;
+	const char *const *first_ptr = (const char* const*) first;
+	const char *const *second_ptr = (const char* const*) second;
+
+	size_t first_len = (size_t) *(first_ptr + 1) - (size_t) *first_ptr - 1;
+	size_t second_len = (size_t) *(second_ptr + 1) - (size_t) *second_ptr - 1;
+
+	const char *first_line = *first_ptr;
+	const char *second_line = *second_ptr;
 
 	size_t i = 0;
 	size_t j = 0;
-	for (; first_line->txt[i] != '\0' && second_line->txt[j] != '\0'; i++, j++) {
-		while (first_line->txt[i] != '\0' && !is_russian_letter(first_line->txt[i]))
+	for (; first_line[i] != '\0' && second_line[j] != '\0'; i++, j++) {
+		while (first_line[i] != '\0' && !is_russian_letter(first_line[i]))
 			i++;
 
-		while (second_line->txt[j] != '\0' && !is_russian_letter(second_line->txt[j]))
+		while (second_line[j] != '\0' && !is_russian_letter(second_line[j]))
 			j++;
 
-		if (first_line->txt[i] == '\0' || second_line->txt[j] == '\0')
+		if (first_line[i] == '\0' || second_line[j] == '\0')
 			break;
 
-		if (tolower(first_line->txt[i]) != tolower(second_line->txt[j]))
-			return tolower(first_line->txt[i]) -tolower( second_line->txt[j]);
+		if (tolower(first_line[i]) != tolower(second_line[j]))
+			return tolower(first_line[i]) -tolower(second_line[j]);
 	}
 	
-	return (int) (first_line->len - second_line->len);
+	return (int) (first_len - second_len);
 }
 
 int compare_str_reverse(const void *first, const void *second)
 {
-	const struct Line *first_line = (const struct Line*) first;
-	const struct Line *second_line = (const struct Line*) second;
+	//const struct Line *first_line = (const struct Line*) first;
+	//const struct Line *second_line = (const struct Line*) second;
+//
+	//size_t i = first_line->len - 1;
+	//size_t j = second_line->len - 1;
+//
+	//for (; i > 0 && j > 0; i--, j--) {
+		//while (i > 0 && !is_russian_letter(first_line->txt[i]))
+			//i--;
+//
+		//while (i > 0 && !is_russian_letter(second_line->txt[j]))
+			//j--;
+//
+		//if (i <= 0 || j <= 0)
+			//break;
+//
+		//if (tolower(first_line->txt[i]) != tolower(second_line->txt[j]))
+			//return tolower(first_line->txt[i]) - tolower(second_line->txt[j]);
+	//}
+//
+	//return (int) (first_line->len - second_line->len);
 
-	size_t i = first_line->len - 1;
-	size_t j = second_line->len - 1;
-
-	for (; i > 0 && j > 0; i--, j--) {
-		while (i > 0 && !is_russian_letter(first_line->txt[i]))
-			i--;
-
-		while (i > 0 && !is_russian_letter(second_line->txt[j]))
-			j--;
-
-		if (i <= 0 || j <= 0)
-			break;
-
-		if (tolower(first_line->txt[i]) != tolower(second_line->txt[j]))
-			return tolower(first_line->txt[i]) - tolower(second_line->txt[j]);
-	}
-
-	return (int) (first_line->len - second_line->len);
+	return 0;
 }
 
 int compare_int(const void *data, size_t first, size_t second)

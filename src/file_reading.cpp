@@ -4,87 +4,93 @@
 
 #include "file_reading.h"
 
-size_t count_sep_in_str(const char *str, char c);
-void split_text(Text *text, char sep);
-enum TextError get_file_size(FILE *file, size_t *size);
+enum BufferError get_file_size(FILE *file, size_t *size);
 
-enum TextError read_text(struct Text *text, const char *filename)
+enum BufferError read_buffer(struct Buffer *buf, const char *filename)
 {
 	FILE *file = fopen(filename, "r");
 	if (file == NULL) return ERR_FILE_ACCESS;
 
 	size_t filesize = 0;
-	enum TextError err = get_file_size(file, &filesize);
+	enum BufferError err = get_file_size(file, &filesize);
 	if (err < 0) return err;
-	text->buffer_size = filesize + 1;
+	buf->size = filesize + 2;
 
-	text->buffer = (char *) calloc(text->buffer_size, sizeof(char));
-	if (text->buffer == NULL) return ERR_MEM;
+	buf->data = (char *) calloc(buf->size, sizeof(char));
+	if (buf->data == NULL) return ERR_BUF_MEM;
 
-	size_t read_chars = fread(text->buffer, sizeof(char), text->buffer_size - 1, file);
-	if (read_chars != text->buffer_size - 1 || ferror(file)) return ERR_FILE_READING;
-	text->buffer[text->buffer_size - 1] = '\0';
-
-	text->num_lines = count_sep_in_str(text->buffer, '\n');
-	
-	text->lines = (struct Line *) calloc(text->num_lines + 1, sizeof(struct Line));
-	if (text->lines == NULL) return ERR_MEM;
-
-	*text->lines = { 0, text->buffer };
-	split_text(text, '\n');
+	size_t read_chars = fread(buf->data + 1, sizeof(char), buf->size - 2, file);
+	if (read_chars != buf->size - 2 || ferror(file)) return ERR_FILE_READING;
+	buf->data[0] = '\0';
+	buf->data[buf->size - 1] = '\0';
 
 	fclose(file);
 
-	return NO_TXT_ERR;
+	return NO_BUF_ERR;
 }
 
-enum TextError get_file_size(FILE *file, size_t *size)
+enum BufferError get_file_size(FILE *file, size_t *size)
 {
 	int fd = fileno(file);
 	struct stat stbuf;
 	if (fstat(fd, &stbuf) == -1) return ERR_FILE_ACCESS;
 	*size = (size_t) stbuf.st_size;
-	return NO_TXT_ERR;
+	return NO_BUF_ERR;
 }
 
-size_t count_sep_in_str(const char *str, char c)
+size_t count_in_buffer(struct Buffer buf, char c)
 {
 	size_t num_chars = 0;
-	while (*str != '\0')
-		if (*str++ == c)
-			if (*str != '\n')
-				num_chars++; 
+	char *iter_buf = buf.data + 1;
+	while (*iter_buf != '\0') {
+		if (*iter_buf++ == c)
+			num_chars++; 
+	}
 	return num_chars;
 }
 
-void split_text(Text *text, char sep)
+void split_buffer(char **splits, struct Buffer *buf, char sep)
 {
-	char *iter_buf = text->buffer;
-	struct Line *iter_lines = text->lines;
-	size_t cur_line_len = 0;
+	char *iter_buf = buf->data + 1;
+	*splits = iter_buf;
+	size_t cnt = 0;
 
 	while (*iter_buf != '\0') {
-		cur_line_len++;
 		if (*iter_buf == sep) {
+			fprintf(stderr, "reading %lu line\n", ++cnt);
 			*iter_buf = '\0';
-			iter_lines->len = cur_line_len;
-			*++iter_lines = { 0, iter_buf + 1 };
-			cur_line_len = 0;
+			*++splits = iter_buf + 1;
 		}
 		iter_buf++;
 	}
-	iter_lines->len = cur_line_len;
+
+	*++splits = iter_buf + 1;
+	fputs("im not stuck dont worry!\n", stderr);
 }
 
+void destroy_buffer(struct Buffer *buf)
+{
+	free(buf->data);
+	buf->data = NULL;
+	buf->size = 0;
+}
 
-void destroy_text(struct Text *text)
+enum TextError text_ctor(struct Text *text, struct Buffer *buf)
+{
+	text->num_lines = count_in_buffer(*buf, '\n') + 1;
+	fprintf(stderr, "there are %lu lines in text\n", text->num_lines);
+	
+	text->lines = (char**) calloc(text->num_lines + 1, sizeof(char*));
+	if (text->lines == NULL) return ERR_TXT_MEM;
+
+	split_buffer(text->lines, buf, '\n');
+
+	return NO_TXT_ERR;
+}
+
+void text_dtor(struct Text *text)
 {
 	free(text->lines);
-	free(text->buffer);
-
 	text->lines = NULL;
-	text->buffer = NULL;
-
 	text->num_lines = 0;
-	text->buffer_size = 0;
 }
